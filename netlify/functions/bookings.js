@@ -21,7 +21,7 @@ export default async (req) => {
   }
 
   if (req.method === "GET") {
-    const owner = new URL(req.url).searchParams.get("owner");
+    const owner = new URL(req.url).searchParams.get("ownerPhone");
     if (!same(owner, process.env.OWNER_PHONE))
       return Response.json({ message: "Unauthorized" }, { status: 401 });
     const { blobs } = await store.list();
