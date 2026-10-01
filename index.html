@@ -82,7 +82,7 @@
 <button class="submit" id="submitBooking" type="button">Submit Booking on WhatsApp</button>
 <div class="note">WhatsApp will open with your booking details ready to send to 0592089982.</div>
 </section>
-<section class="dash hidden" id="owner"><button class="back" onclick="goHome()" type="button">← Back to Home</button><div id="ownerLogin"><div class="kicker">Private Area</div><h2>Owner Account</h2><p>Enter the owner contact number to access the booking dashboard.</p><input id="ownerPhone" placeholder="Owner phone number" type="tel"/><button class="small-btn" onclick="ownerLogin()">Access All Bookings</button><div class="owner-status" id="ownerStatus">The owner contact is used only to identify the owner. Customer phone numbers are never used to filter the dashboard.</div></div><div class="hidden" id="ownerPanel"><button class="logout" onclick="ownerLogout()">Log out</button><h2>All Appointments</h2><p>Every booking submitted by every customer is shown here. Today's and future appointments are separated for quick viewing.</p><div class="dashboard-tools"><button class="small-btn" onclick="refreshOwnerBookings()">Refresh Bookings</button><button class="small-btn secondary" onclick="renderAllBookings()">Show All</button></div><div class="dash-card"><h3>Today's Bookings</h3><div id="todayBookings">No bookings for today.</div></div><div class="dash-card"><h3>Subsequent Bookings</h3><div id="upcomingBookings">No upcoming bookings.</div></div><div class="dash-card hidden" id="allBookingsCard"><h3>All Bookings</h3><div id="allBookings">No bookings.</div></div></div></section>
+<section class="dash hidden" id="owner"><button class="back" onclick="goHome()" type="button">← Back to Home</button><div id="ownerLogin"><div class="kicker">Private Area</div><h2>Owner Account</h2><p>Enter the owner secret code to access the booking dashboard.</p><input id="ownerPhone" placeholder="Owner secret code" type="password" autocomplete="off"/><button class="small-btn" onclick="ownerLogin()">Access All Bookings</button><div class="owner-status" id="ownerStatus">The owner contact is used only to identify the owner. Customer phone numbers are never used to filter the dashboard.</div></div><div class="hidden" id="ownerPanel"><button class="logout" onclick="ownerLogout()">Log out</button><h2>All Appointments</h2><p>Every booking submitted by every customer is shown here. Today's and future appointments are separated for quick viewing.</p><div class="dashboard-tools"><button class="small-btn" onclick="refreshOwnerBookings()">Refresh Bookings</button><button class="small-btn secondary" onclick="renderAllBookings()">Show All</button></div><div class="dash-card"><h3>Today's Bookings</h3><div id="todayBookings">No bookings for today.</div></div><div class="dash-card"><h3>Subsequent Bookings</h3><div id="upcomingBookings">No upcoming bookings.</div></div><div class="dash-card hidden" id="allBookingsCard"><h3>All Bookings</h3><div id="allBookings">No bookings.</div></div></div></section>
 <footer>Barniecom Hair • Appointment booking</footer>
 </div>
 <script>
@@ -133,13 +133,11 @@ document.getElementById("submitBooking").onclick=async function(){
 
 function hideAll(){document.getElementById("home").classList.add("hidden");document.getElementById("booking").classList.add("hidden");document.getElementById("classes").classList.add("hidden");document.getElementById("owner").classList.add("hidden");}
 function goClasses(){hideAll();document.getElementById("classes").classList.remove("hidden");window.scrollTo(0,0);}
-function openOwner(){hideAll();document.getElementById("owner").classList.remove("hidden");document.getElementById("ownerLogin").classList.remove("hidden");document.getElementById("ownerPanel").classList.add("hidden");document.getElementById("ownerStatus").textContent="Enter the owner's contact number. The server will verify it and then load bookings from the central database.";window.scrollTo(0,0);}
+function openOwner(){hideAll();document.getElementById("owner").classList.remove("hidden");document.getElementById("ownerLogin").classList.remove("hidden");document.getElementById("ownerPanel").classList.add("hidden");document.getElementById("ownerStatus").textContent="Enter the owner secret code. The server will verify it and then load bookings from the central database.";window.scrollTo(0,0);}
 function normalizePhone(p){return p.replace(/\D/g,"");}
 async function ownerLogin(){
- var p=normalizePhone(document.getElementById("ownerPhone").value);
- if(!p){alert("Please enter the owner contact number.");return;}
- var validOwner=(p==="0592089982"||p==="233592089982");
- if(!validOwner){alert("Owner access denied.");return;}
+ var p=document.getElementById("ownerPhone").value.trim();
+ if(!p){alert("Please enter the owner secret code.");return;}
  var button=document.querySelector("#ownerLogin .small-btn");
  button.disabled=true;button.textContent="Loading bookings...";
  window._ownerBookings=[];window._ownerPhone=p;
@@ -170,6 +168,7 @@ async function refreshOwnerBookings(){
    }
    renderOwnerBookings();
  }catch(e){
+   if(e&&e.message==="Unauthorized"){alert("Wrong owner secret code.");ownerLogout();return;}
    window._ownerBookings=purgeLocalExpiredBookings();
    if(status)status.textContent="The central booking server could not be reached, so only this device's saved bookings are shown.";
    renderOwnerBookings();
